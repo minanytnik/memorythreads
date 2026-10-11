@@ -129,15 +129,34 @@
         .controls {
             width: 100%;
             display: flex;
-            flex-wrap: nowrap;
-            gap: 6px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
             margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.12);
             padding: 10px 8px;
             border-radius: 16px;
             backdrop-filter: blur(10px);
             box-sizing: border-box;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* На широких экранах (компьютер) — одна строка */
+        @media (min-width: 600px) {
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .controls-row {
+                flex-wrap: nowrap;
+            }
         }
 
         .controls button {
@@ -428,6 +447,136 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        /* ====== ОКНО РЕЙТИНГА ====== */
+        .rating-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .rating-screen.show {
+            display: flex;
+        }
+
+        .rating-box {
+            background: #2a2a4a;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rating-box h2 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .rating-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .rating-tab {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .rating-tab.active {
+            background: #00d4c6;
+            color: #fff;
+        }
+
+        .rating-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            min-height: 200px;
+        }
+
+        .rating-loading {
+            text-align: center;
+            opacity: 0.6;
+            padding: 30px;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .rating-row.me {
+            background: rgba(0, 212, 198, 0.2);
+            border: 1px solid rgba(0, 212, 198, 0.4);
+        }
+
+        .rating-place {
+            font-weight: 700;
+            min-width: 32px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .rating-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .rating-score {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            text-align: right;
+        }
+
+        .rating-score div {
+            line-height: 1.4;
+        }
+
+        #rating-close {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #rating-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        А
+
         /* Заглушка под гифку кота */
         .cat-gif {
             width: 300px;
@@ -547,14 +696,19 @@
         <h1>🎴 Мемори Тредс 🎴</h1>
 
         <div class="controls">
-            <button data-size="4x4" class="size-btn active">4×4</button>
-            <button data-size="4x5" class="size-btn">4×5</button>
-            <button data-size="6x6" class="size-btn">6×6</button>
-            <button id="timer-toggle" title="Включить/выключить таймер">⏱️</button>
-            <button id="sound-toggle" title="Включить/выключить звук">🔊</button>
-            <button id="theme-toggle" title="Сменить тему">🌆</button>
-            <button id="login-btn" title="Войти или зарегистрироваться">👤</button>
-            <button id="restart-btn" title="Начать заново">🔄</button>
+            <div class="controls-row">
+                <button data-size="4x4" class="size-btn active">4×4</button>
+                <button data-size="4x5" class="size-btn">4×5</button>
+                <button data-size="6x6" class="size-btn">6×6</button>
+                <button id="timer-toggle" title="Включить/выключить таймер">⏱️</button>
+                <button id="sound-toggle" title="Включить/выключить звук">🔊</button>
+                <button id="theme-toggle" title="Сменить тему">🌆</button>
+            </div>
+            <div class="controls-row">
+                <button id="rating-btn" title="Рейтинг игроков">🏆</button>
+                <button id="login-btn" title="Войти или зарегистрироваться">👤</button>
+                <button id="restart-btn" title="Начать заново">🔄</button>
+            </div>
         </div>
 
         <div class="stats">
@@ -609,6 +763,25 @@
             <button id="auth-submit">Войти</button>
             <button id="auth-switch">Нет аккаунта? Зарегистрироваться</button>
             <button id="auth-cancel">Отмена</button>
+        </div>
+    </div>
+
+    <!-- ОКНО РЕЙТИНГА -->
+    <div class="rating-screen" id="rating-screen">
+        <div class="rating-box">
+            <h2>🏆 Рейтинг</h2>
+
+            <div class="rating-tabs">
+                <button class="rating-tab active" data-size="4x4">4×4</button>
+                <button class="rating-tab" data-size="4x5">4×5</button>
+                <button class="rating-tab" data-size="6x6">6×6</button>
+            </div>
+
+            <div class="rating-list" id="rating-list">
+                <div class="rating-loading">Загрузка...</div>
+            </div>
+
+            <button id="rating-close">Закрыть</button>
         </div>
     </div>
 
@@ -1187,13 +1360,11 @@
             const current = all[size] || { bestMoves: null, bestTime: null };
             let isNewRecord = false;
 
-            // Проверяем рекорд по ходам
             if (current.bestMoves === null || moves < current.bestMoves) {
                 current.bestMoves = moves;
                 isNewRecord = true;
             }
 
-            // Проверяем рекорд по времени (только если таймер был включён)
             if (timerEnabled) {
                 if (current.bestTime === null || time < current.bestTime) {
                     current.bestTime = time;
@@ -1203,7 +1374,75 @@
 
             all[size] = current;
             saveRecords(all);
+
+            // Если игрок залогинен — сохраняем в Supabase
+            if (currentUser) {
+                saveRecordToSupabase(size, current.bestMoves, current.bestTime);
+            }
+
             return isNewRecord;
+        }
+
+        // Сохранить рекорд в Supabase
+        async function saveRecordToSupabase(size, moves, time) {
+            try {
+                const username = currentUser.user_metadata?.username || 'Игрок';
+                const userId = currentUser.id;
+
+                // Проверяем, есть ли уже запись для этого игрока + размера
+                const { data: existing, error: selectError } = await supabaseClient
+                    .from('records')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('board_size', size)
+                    .maybeSingle();
+
+                if (selectError) {
+                    console.log('Ошибка проверки рекорда:', selectError);
+                    return;
+                }
+
+                if (existing) {
+                    // Запись есть — обновляем, если результат лучше
+                    const updateData = {};
+                    if (moves < existing.best_moves) updateData.best_moves = moves;
+                    if (time !== null && (existing.best_time === null || time < existing.best_time)) {
+                        updateData.best_time = time;
+                    }
+
+                    if (Object.keys(updateData).length > 0) {
+                        const { error: updateError } = await supabaseClient
+                            .from('records')
+                            .update(updateData)
+                            .eq('id', existing.id);
+
+                        if (updateError) {
+                            console.log('Ошибка обновления рекорда:', updateError);
+                        } else {
+                            console.log('Рекорд обновлён в Supabase');
+                        }
+                    }
+                } else {
+                    // Записи нет — создаём
+                    const { error: insertError } = await supabaseClient
+                        .from('records')
+                        .insert({
+                            user_id: userId,
+                            username: username,
+                            board_size: size,
+                            best_moves: moves,
+                            best_time: time
+                        });
+
+                    if (insertError) {
+                        console.log('Ошибка создания рекорда:', insertError);
+                    } else {
+                        console.log('Рекорд создан в Supabase');
+                    }
+                }
+            } catch (e) {
+                console.log('Ошибка сохранения рекорда:', e);
+            }
         }
 
         // Показать рекорды на экране победы
@@ -1410,6 +1649,86 @@
         document.getElementById('auth-cancel').addEventListener('click', closeAuth);
 
         // Проверяем авторизацию при загрузке
+        /* ============================================================
+   11. РЕЙТИНГ
+   ============================================================ */
+
+        let ratingSize = '4x4';   // текущий размер поля в рейтинге
+
+        // Открыть окно рейтинга
+        function openRating() {
+            document.getElementById('rating-screen').classList.add('show');
+            loadRating(ratingSize);
+        }
+
+        // Закрыть окно рейтинга
+        function closeRating() {
+            document.getElementById('rating-screen').classList.remove('show');
+        }
+
+        // Загрузить рейтинг из Supabase
+        async function loadRating(size) {
+            const list = document.getElementById('rating-list');
+            list.innerHTML = '<div class="rating-loading">Загрузка...</div>';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('records')
+                    .select('username, best_moves, best_time')
+                    .eq('board_size', size)
+                    .order('best_moves', { ascending: true })
+                    .limit(20);
+
+                if (error) {
+                    list.innerHTML = '<div class="rating-loading">Ошибка загрузки</div>';
+                    console.log('Ошибка загрузки рейтинга:', error);
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<div class="rating-loading">Пока никто не играл в этом размере</div>';
+                    return;
+                }
+
+                // Находим своё имя (если залогинен)
+                const myUsername = currentUser?.user_metadata?.username;
+
+                // Строим список
+                list.innerHTML = data.map((row, index) => {
+                    const isMe = row.username === myUsername;
+                    const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+
+                    return `
+        <div class="rating-row ${isMe ? 'me' : ''}">
+          <div class="rating-place">${medal}</div>
+          <div class="rating-name">${row.username}</div>
+          <div class="rating-score">
+            <div>Ходы: ${row.best_moves}</div>
+            ${row.best_time !== null ? `<div>Время: ${row.best_time} с</div>` : ''}
+          </div>
+        </div>
+      `;
+                }).join('');
+
+            } catch (e) {
+                list.innerHTML = '<div class="rating-loading">Ошибка загрузки</div>';
+                console.log('Ошибка:', e);
+            }
+        }
+
+        // Обработчики
+        document.getElementById('rating-btn').addEventListener('click', openRating);
+        document.getElementById('rating-close').addEventListener('click', closeRating);
+
+        // Переключение размера в рейтинге
+        document.querySelectorAll('.rating-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.rating-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                ratingSize = tab.dataset.size;
+                loadRating(ratingSize);
+            });
+        });
         checkAuth();
         startGame();
     </script>
