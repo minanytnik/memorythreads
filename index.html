@@ -926,16 +926,17 @@
                 btn.classList.add('active');
                 currentSize = btn.dataset.size;
                 startGame();
-                // Регистрация Service Worker для PWA
-                if ('serviceWorker' in navigator) {
-                    window.addEventListener('load', () => {
-                        navigator.serviceWorker.register('sw.js')
-                            .then(() => console.log('Service Worker зарегистрирован'))
-                            .catch((err) => console.log('Service Worker не зарегистрирован:', err));
-                    });
-                }
             });
         });
+
+        // Регистрация Service Worker для PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(() => console.log('Service Worker зарегистрирован'))
+                    .catch((err) => console.log('Service Worker не зарегистрирован:', err));
+            });
+        }
 
         // Таймер вкл/выкл
         document.getElementById('timer-toggle').addEventListener('click', (e) => {
