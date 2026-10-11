@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#7b2ff7">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
     <title>Мемори Тредс 🎴</title>
     <style>
         /* ====== ОБЩИЕ НАСТРОЙКИ ====== */
@@ -921,6 +926,14 @@
                 btn.classList.add('active');
                 currentSize = btn.dataset.size;
                 startGame();
+                // Регистрация Service Worker для PWA
+                if ('serviceWorker' in navigator) {
+                    window.addEventListener('load', () => {
+                        navigator.serviceWorker.register('sw.js')
+                            .then(() => console.log('Service Worker зарегистрирован'))
+                            .catch((err) => console.log('Service Worker не зарегистрирован:', err));
+                    });
+                }
             });
         });
 
