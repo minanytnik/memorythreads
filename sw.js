@@ -37,7 +37,7 @@ const FILES_TO_CACHE = [
     '/images/cat24.gif',
     '/images/cat25.gif',
     '/images/cat26.gif',
-    '/images/cat27.gif',
+    '/images/cat27.gif'
 ];
 
 // Установка — кэшируем основные файлы
