@@ -25,6 +25,69 @@
             overflow-x: hidden;
         }
 
+        /* ====== ТЕМЫ ФОНА ====== */
+
+        /* ☀️ Светлая тема */
+        body.theme-light {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            color: #2a2a5a;
+        }
+
+        /* 🌆 Потемнее — это текущая (по умолчанию) */
+        body.theme-medium {
+            background: linear-gradient(135deg, #7b2ff7 0%, #00d4c6 100%);
+            color: #fff;
+        }
+
+        /* 🌙 Тёмная тема */
+        body.theme-dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8e8f0;
+        }
+
+        /* В светлой теме — адаптируем панели и кнопки */
+        body.theme-light .controls,
+        body.theme-light .stats div,
+        body.theme-light .records {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        body.theme-light .controls button {
+            background: rgba(0, 0, 0, 0.08);
+            color: #2a2a5a;
+        }
+
+        body.theme-light .controls button:hover {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        body.theme-light .controls button.active {
+            background: #7b2ff7;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(123, 47, 247, 0.3);
+        }
+
+        /* В тёмной теме — панели чуть светлее фона */
+        body.theme-dark .controls,
+        body.theme-dark .stats div,
+        body.theme-dark .records {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        body.theme-dark .controls button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8e8f0;
+        }
+
+        body.theme-dark .controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.theme-dark .controls button.active {
+            background: #00d4c6;
+            color: #fff;
+        }
+
         .game-wrap {
             width: 100%;
             max-width: 600px;
@@ -372,6 +435,7 @@
             <button data-size="6x6" class="size-btn">6×6</button>
             <button id="timer-toggle" title="Включить/выключить таймер">⏱️</button>
             <button id="sound-toggle" title="Включить/выключить звук">🔊</button>
+            <button id="theme-toggle" title="Сменить тему">🌆</button>
             <button id="restart-btn" title="Начать заново">🔄</button>
         </div>
 
@@ -526,48 +590,48 @@
         }
 
         /* 🎴 Шорох при несовпадении карточек */
-function playMiss() {
-  if (!soundEnabled) return;
+        function playMiss() {
+            if (!soundEnabled) return;
 
-  try {
-    const ctx = getAudioCtx();
-    const now = ctx.currentTime;
+            try {
+                const ctx = getAudioCtx();
+                const now = ctx.currentTime;
 
-    // Буфер с белым шумом
-    const duration = 0.25;
-    const bufferSize = ctx.sampleRate * duration;
-    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
+                // Буфер с белым шумом
+                const duration = 0.25;
+                const bufferSize = ctx.sampleRate * duration;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
 
-    for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1;
-    }
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
 
-    // Источник
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
+                // Источник
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
 
-    // Фильтр — «шуршащий» диапазон
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 2200;
-    filter.Q.value = 0.6;
+                // Фильтр — «шуршащий» диапазон
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 2200;
+                filter.Q.value = 0.6;
 
-    // Громкость — плавно нарастает и затухает
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.1, now + 0.03);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                // Громкость — плавно нарастает и затухает
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
 
-    noise.start(now);
-    noise.stop(now + duration);
+                noise.start(now);
+                noise.stop(now + duration);
 
-  } catch (e) {}
-}
+            } catch (e) { }
+        }
 
         /* ============================================================
    ЗВУКИ ПОБЕДЫ — 5 разных, играют рандомно
@@ -880,6 +944,46 @@ function playMiss() {
             soundEnabled = !soundEnabled;
             e.target.textContent = soundEnabled ? '🔊 Звук: ВКЛ' : '🔇 Звук: ВЫКЛ';
         });
+        // Смена темы
+        const THEMES = ['theme-medium', 'theme-light', 'theme-dark'];
+        const THEME_ICONS = {
+            'theme-medium': '🌆',
+            'theme-light': '☀️',
+            'theme-dark': '🌙'
+        };
+
+        // Загружаем сохранённую тему из localStorage
+        let currentThemeIndex = 0;
+        try {
+            const saved = localStorage.getItem('memory-theme');
+            if (saved && THEMES.includes(saved)) {
+                currentThemeIndex = THEMES.indexOf(saved);
+            }
+        } catch (e) { }
+
+        // Применяем тему
+        function applyTheme() {
+            // Убираем все классы тем
+            document.body.classList.remove('theme-light', 'theme-medium', 'theme-dark');
+            // Добавляем текущую
+            document.body.classList.add(THEMES[currentThemeIndex]);
+            // Меняем иконку на кнопке
+            const btn = document.getElementById('theme-toggle');
+            btn.textContent = THEME_ICONS[THEMES[currentThemeIndex]];
+            btn.title = 'Тема: ' + THEMES[currentThemeIndex].replace('theme-', '');
+        }
+
+        // Клик по кнопке — переключаем на следующую тему
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            currentThemeIndex = (currentThemeIndex + 1) % THEMES.length;
+            applyTheme();
+            try {
+                localStorage.setItem('memory-theme', THEMES[currentThemeIndex]);
+            } catch (e) { }
+        });
+
+        // Применяем тему при загрузке
+        applyTheme();
 
         // Заново (в панели)
         document.getElementById('restart-btn').addEventListener('click', startGame);
