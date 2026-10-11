@@ -44,7 +44,14 @@ const FILES_TO_CACHE = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(FILES_TO_CACHE);
+            // Кэшируем файлы по одному — если один не загрузится, остальные всё равно закэшируются
+            return Promise.all(
+                FILES_TO_CACHE.map((url) => {
+                    return cache.add(url).catch((err) => {
+                        console.log('Не удалось закэшировать:', url, err);
+                    });
+                })
+            );
         })
     );
     self.skipWaiting();
