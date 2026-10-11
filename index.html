@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мемори Тредс 🎴</title>
+    <style>
+        /* ====== ОБЩИЕ НАСТРОЙКИ ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #7b2ff7 0%, #00d4c6 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .game-wrap {
+            width: 100%;
+            max-width: 600px;
+            /* ← вот эта ширина будет у панели и поля */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 400px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (min-width: 500px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* ====== ПАНЕЛЬ УПРАВЛЕНИЯ ====== */
+        .controls {
+            width: 100%;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 6px;
+            justify-content: center;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 10px 8px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        .controls button {
+            font-size: 0.85rem;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .controls button:not(.size-btn) {
+            min-width: 36px;
+            padding: 8px 6px;
+            font-size: 1rem;
+        }
+
+        .controls button:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls button.active {
+            background: #00d4c6;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 198, 0.5);
+        }
+
+        /* ====== СТАТИСТИКА ====== */
+        .stats {
+            width: 100%;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            box-sizing: border-box;
+        }
+
+        .stats div {
+            flex: 1;
+            /* ← растягивается на равную долю */
+            text-align: center;
+            /* ← текст по центру плашки */
+            background: rgba(255, 255, 255, 0.12);
+            padding: 8px 16px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        /* ====== ИГРОВОЕ ПОЛЕ ====== */
+        .board {
+            width: 100%;
+            display: grid;
+            gap: 10px;
+            perspective: 1000px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        /* ====== КАРТОЧКА ====== */
+        .card {
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+
+        /* Анимация появления карточки "волной" */
+        .card {
+            opacity: 0;
+            transform: translateY(30px) scale(0.7);
+            animation: cardAppear 0.5s ease-out forwards;
+        }
+
+        @keyframes cardAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.7);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translateY(-5px) scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Если карточка перевёрнута — анимация не мешает */
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.4;
+            /* ← полупрозрачность */
+            transition: opacity 0.5s;
+            /* ← плавное появление прозрачности */
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Рубашка (логотип чата) */
+        .card-back {
+            background: #fff;
+            background-image: url('images/logo.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Лицо (аватарка) */
+        .card-front {
+            background: #fff;
+            transform: rotateY(180deg);
+        }
+
+        .card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ====== ЭКРАН ПОБЕДЫ ====== */
+        .win-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .win-screen.show {
+            display: flex;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .win-screen h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Заглушка под гифку кота */
+        .cat-gif {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .cat-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .win-screen p {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Плашка "Новый рекорд" */
+        .new-record {
+            display: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffd93d;
+            text-shadow: 0 2px 10px rgba(255, 217, 61, 0.6);
+            margin-bottom: 15px;
+            animation: recordPulse 1s infinite;
+        }
+
+        .new-record.show {
+            display: block;
+        }
+
+        @keyframes recordPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        /* Блок с рекордами */
+        .records {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .records>div:first-child {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .record-line span {
+            color: #ffd93d;
+            font-weight: 700;
+        }
+
+        .win-screen button {
+            font-size: 1.2rem;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 14px;
+            background: #ffd93d;
+            color: #4a3a7a;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .win-screen button:hover {
+            transform: scale(1.05);
+        }
+
+        /* ====== КОНФЕТТИ ====== */
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 200;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ПАНЕЛЬ УПРАВЛЕНИЯ -->
+    <div class="game-wrap">
+        <h1>🎴 Мемори Тредс 🎴</h1>
+
+        <div class="controls">
+            <button data-size="4x4" class="size-btn active">4×4</button>
+            <button data-size="4x5" class="size-btn">4×5</button>
+            <button data-size="6x6" class="size-btn">6×6</button>
+            <button id="timer-toggle" title="Включить/выключить таймер">⏱️</button>
+            <button id="sound-toggle" title="Включить/выключить звук">🔊</button>
+            <button id="restart-btn" title="Начать заново">🔄</button>
+        </div>
+
+        <div class="stats">
+            <div>Ходы: <span id="moves">0</span></div>
+            <div id="timer-box">Время: <span id="time">0</span> с</div>
+        </div>
+
+        <div class="board" id="board"></div>
+    </div>
+
+    <!-- ЭКРАН ПОБЕДЫ -->
+    <div class="win-screen" id="win-screen">
+        <h2>🎉 Победа! 🎉</h2>
+
+        <!-- Плашка "Новый рекорд" — показывается только если побит рекорд -->
+        <div class="new-record" id="new-record">🎊 НОВЫЙ РЕКОРД! 🎊</div>
+
+        <!-- Гифка с котом -->
+        <div class="cat-gif">
+            <img id="win-gif" src="" alt="Котик целует экран">
+        </div>
+
+        <p>Ходов: <span id="final-moves">0</span> | Время: <span id="final-time">0</span> с</p>
+
+        <!-- Блок с рекордами -->
+        <div class="records" id="records">
+            <div>🏆 Лучший результат:</div>
+            <div class="record-line">Меньше ходов: <span id="record-moves">—</span></div>
+            <div class="record-line">Быстрее всех: <span id="record-time">—</span></div>
+        </div>
+
+        <button id="play-again">🎴 Играть снова</button>
+    </div>
+
+    <script>
+        /* ============================================================
+           1. НАСТРОЙКИ
+           ============================================================ */
+
+        // Сколько всего аватарок в папке images/ (файлы 1.jpg ... 34.jpg)
+        const TOTAL_AVATARS = 34;
+
+        // Сколько гифок с котами в папке images/ (файлы cat1.gif, cat2.gif...)
+        const TOTAL_CAT_GIFS = 27;
+
+        // Размеры поля: сколько карточек по горизонтали и вертикали
+        const SIZES = {
+            '4x4': { cols: 4, rows: 4 },
+            '4x5': { cols: 4, rows: 5 },
+            '6x6': { cols: 6, rows: 6 }
+        };
+
+        /* ============================================================
+           2. СОСТОЯНИЕ ИГРЫ
+           ============================================================ */
+
+        let currentSize = '4x4';      // текущий размер поля
+        let timerEnabled = true;      // включён ли таймер
+        let soundEnabled = true;
+        let board = [];               // массив карточек
+        let flipped = [];             // какие карточки сейчас открыты
+        let matchedCount = 0;         // сколько пар найдено
+        let moves = 0;                // счётчик ходов
+        let lockBoard = false;        // блокировка во время проверки
+        let timerInterval = null;     // интервал таймера
+        let seconds = 0;              // прошедшее время
+        let gameStarted = false;      // началась ли игра
+        let currentRecords = null;     // рекорды для текущего размера поля
+        let bestMoves = null;          // лучший результат по ходам
+        let bestTime = null;           // лучший результат по времени
+
+        /* ============================================================
+           3. ЗВУКИ (синтезированные через Web Audio API)
+           ============================================================ */
+
+        let audioCtx = null;
+
+        function getAudioCtx() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioCtx;
+        }
+
+        function playTone(frequency, duration, type = 'sine', volume = 0.15) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioCtx();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.value = frequency;
+                gain.gain.setValueAtTime(volume, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) { }
+        }
+
+        /* 💧 Капля в ведро при перевороте карточки */
+        function playFlip() {
+            if (!soundEnabled) return;
+
+            try {
+                const ctx = getAudioCtx();
+                const now = ctx.currentTime;
+
+                // Основной "бульк" — низкий, как в ведро
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(900, now);                     // старт — ниже, чем раньше
+                osc.frequency.exponentialRampToValueAtTime(180, now + 0.18); // глубокое падение
+
+                // Громкость — тише, чем было
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.1, now + 0.008);        // пик тише
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);  // длинное затухание
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.23);
+
+                // "Эхо" — как будто в ведре отражается
+                const echo = ctx.createOscillator();
+                echo.type = 'sine';
+                echo.frequency.setValueAtTime(500, now + 0.05);
+                echo.frequency.exponentialRampToValueAtTime(120, now + 0.25);
+
+                const echoGain = ctx.createGain();
+                echoGain.gain.setValueAtTime(0, now + 0.05);
+                echoGain.gain.linearRampToValueAtTime(0.04, now + 0.08);
+                echoGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+                echo.connect(echoGain);
+                echoGain.connect(ctx.destination);
+
+                echo.start(now + 0.05);
+                echo.stop(now + 0.3);
+
+            } catch (e) { }
+        }
+
+        function playMatch() {
+            playTone(800, 0.1, 'sine', 0.15);
+            setTimeout(() => playTone(1000, 0.15, 'sine', 0.15), 80);
+        }
+
+        /* 🎴 Шорох при несовпадении карточек */
+function playMiss() {
+  if (!soundEnabled) return;
+
+  try {
+    const ctx = getAudioCtx();
+    const now = ctx.currentTime;
+
+    // Буфер с белым шумом
+    const duration = 0.25;
+    const bufferSize = ctx.sampleRate * duration;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    // Источник
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    // Фильтр — «шуршащий» диапазон
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 2200;
+    filter.Q.value = 0.6;
+
+    // Громкость — плавно нарастает и затухает
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.1, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + duration);
+
+  } catch (e) {}
+}
+
+        /* ============================================================
+   ЗВУКИ ПОБЕДЫ — 5 разных, играют рандомно
+   ============================================================ */
+
+        // 1. 🎺 Фанфары — классические победные
+        function playWinFanfare() {
+            const notes = [523, 659, 784, 1047];
+            notes.forEach((n, i) => {
+                setTimeout(() => playTone(n, 0.25, 'square', 0.12), i * 120);
+            });
+            setTimeout(() => playTone(1047, 0.5, 'square', 0.15), 600);
+        }
+
+        // 2. 🎉 Весёлая мелодия — быстрая, игривая
+        function playWinHappy() {
+            const notes = [659, 784, 880, 988, 1047, 988, 1047];
+            notes.forEach((n, i) => {
+                setTimeout(() => playTone(n, 0.15, 'triangle', 0.13), i * 90);
+            });
+        }
+
+        // 3. 🌟 Нежная — медленная, мягкая
+        function playWinSoft() {
+            const notes = [523, 659, 784, 988, 1047];
+            notes.forEach((n, i) => {
+                setTimeout(() => playTone(n, 0.5, 'sine', 0.1), i * 200);
+            });
+        }
+
+        // 4. 🚀 Эпичная — низкая, нарастающая
+        function playWinEpic() {
+            const notes = [262, 330, 392, 523, 659, 784];
+            notes.forEach((n, i) => {
+                setTimeout(() => playTone(n, 0.3, 'sawtooth', 0.08 + i * 0.015), i * 130);
+            });
+            setTimeout(() => {
+                playTone(1047, 0.7, 'sine', 0.18);
+                playTone(1319, 0.7, 'sine', 0.12);
+            }, 850);
+        }
+
+        // 5. 🎈 Забавная — скачущая, с паузами
+        function playWinFunny() {
+            const pattern = [
+                { f: 784, t: 0 },
+                { f: 988, t: 100 },
+                { f: 784, t: 200 },
+                { f: 1047, t: 350 },
+                { f: 880, t: 500 },
+                { f: 1047, t: 650 },
+                { f: 1319, t: 800 }
+            ];
+            pattern.forEach(p => {
+                setTimeout(() => playTone(p.f, 0.15, 'triangle', 0.13), p.t);
+            });
+        }
+
+        // Все звуки победы в одном массиве
+        const WIN_SOUNDS = [
+            playWinFanfare,
+            playWinHappy,
+            playWinSoft,
+            playWinEpic,
+            playWinFunny
+        ];
+
+        // Проиграть случайный звук победы
+        function playWin() {
+            if (!soundEnabled) return;
+            const randomIndex = Math.floor(Math.random() * WIN_SOUNDS.length);
+            WIN_SOUNDS[randomIndex]();
+        }
+
+        /* ============================================================
+           4. СОЗДАНИЕ ИГРОВОГО ПОЛЯ
+           ============================================================ */
+
+        function shuffle(arr) {
+            // Перемешивание Фишера-Йетса
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function getRandomAvatars(count) {
+            // Берём случайные count уникальных номеров от 1 до TOTAL_AVATARS
+            const all = [];
+            for (let i = 1; i <= TOTAL_AVATARS; i++) all.push(i);
+            return shuffle(all).slice(0, count);
+        }
+
+        function startGame() {
+            // Сброс состояния
+            flipped = [];
+            matchedCount = 0;
+            moves = 0;
+            seconds = 0;
+            lockBoard = false;
+            gameStarted = false;
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('time').textContent = '0';
+            document.getElementById('win-screen').classList.remove('show');
+
+            clearInterval(timerInterval);
+            timerInterval = null;
+
+            // Размер поля
+            const { cols, rows } = SIZES[currentSize];
+            const totalCells = cols * rows;
+            const pairsCount = totalCells / 2;
+
+            // Случайные аватарки для пар
+            const avatars = getRandomAvatars(pairsCount);
+
+            // Каждая аватарка дублируется (пара)
+            let cards = [];
+            avatars.forEach(num => {
+                cards.push(num);
+                cards.push(num);
+            });
+
+            // Перемешиваем
+            cards = shuffle(cards);
+
+            // Рисуем поле
+            const boardEl = document.getElementById('board');
+            boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            boardEl.innerHTML = '';
+
+            board = cards.map((avatarNum, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.avatar = avatarNum;
+                card.dataset.index = index;
+
+                // Задержка появления — "волна"
+                // Чем больше index, тем позже появляется
+                card.style.animationDelay = (index * 0.05) + 's';
+
+                card.innerHTML = `
+      <div class="card-inner" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform 0.8s;">
+        <div class="card-face card-back"></div>
+        <div class="card-face card-front">
+          <img src="images/${avatarNum}.jpg" alt="avatar">
+        </div>
+      </div>
+    `;
+
+                card.addEventListener('click', () => onCardClick(card));
+                boardEl.appendChild(card);
+                return card;
+            });
+        }
+
+        /* ============================================================
+           5. ЛОГИКА ИГРЫ
+           ============================================================ */
+
+        function onCardClick(card) {
+            if (lockBoard) return;
+            if (card.classList.contains('flipped')) return;
+            if (card.classList.contains('matched')) return;
+
+            // Первый клик — запускаем таймер
+            if (!gameStarted) {
+                gameStarted = true;
+                if (timerEnabled) startTimer();
+            }
+
+            card.classList.add('flipped');
+            card.querySelector('.card-inner').style.transform = 'rotateY(180deg)';
+            playFlip();
+            flipped.push(card);
+
+            if (flipped.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [a, b] = flipped;
+            const isMatch = a.dataset.avatar === b.dataset.avatar;
+
+            if (isMatch) {
+                playMatch();
+                launchConfetti();
+
+                setTimeout(() => {
+                    a.classList.add('matched');
+                    b.classList.add('matched');
+                    matchedCount++;
+                    flipped = [];
+
+                    if (matchedCount === board.length / 2) {
+                        win();
+                    }
+                }, 400);
+            } else {
+                playMiss();
+                lockBoard = true;
+                setTimeout(() => {
+                    a.classList.remove('flipped');
+                    b.classList.remove('flipped');
+                    a.querySelector('.card-inner').style.transform = '';
+                    b.querySelector('.card-inner').style.transform = '';
+                    flipped = [];
+                    lockBoard = false;
+                }, 1200);
+            }
+        }
+
+        function win() {
+            clearInterval(timerInterval);
+            playWin();
+
+            // Выбираем случайную гифку с котом
+            const randomCat = Math.floor(Math.random() * TOTAL_CAT_GIFS) + 1;
+            document.getElementById('win-gif').src = `images/cat${randomCat}.gif`;
+
+            // Обновляем рекорды
+            const isNewRecord = updateRecords(currentSize, moves, seconds);
+
+            // Показываем финальные цифры
+            document.getElementById('final-moves').textContent = moves;
+            document.getElementById('final-time').textContent = seconds;
+
+            // Показываем блок с рекордами
+            showRecords(currentSize);
+
+            // Показываем плашку "Новый рекорд", если побит
+            showNewRecordBanner(isNewRecord);
+
+            setTimeout(() => {
+                document.getElementById('win-screen').classList.add('show');
+            }, 500);
+        }
+
+        /* ============================================================
+           6. ТАЙМЕР
+           ============================================================ */
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                seconds++;
+                document.getElementById('time').textContent = seconds;
+            }, 1000);
+        }
+
+        /* ============================================================
+           7. КОНФЕТТИ
+           ============================================================ */
+
+        const CONFETTI_COLORS = ['#ffd93d', '#ff6b6b', '#6bcbff', '#a66bff', '#6bff9e', '#ff9e6b'];
+
+        function launchConfetti() {
+            const count = 30;
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.top = '-20px';
+                piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+                piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                const duration = 1.5 + Math.random() * 1.5;
+                piece.style.animationDuration = duration + 's';
+                piece.style.animationDelay = Math.random() * 0.3 + 's';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), (duration + 0.5) * 1000);
+            }
+        }
+
+        /* ============================================================
+           8. КНОПКИ УПРАВЛЕНИЯ
+           ============================================================ */
+
+        // Выбор размера
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSize = btn.dataset.size;
+                startGame();
+            });
+        });
+
+        // Таймер вкл/выкл
+        document.getElementById('timer-toggle').addEventListener('click', (e) => {
+            timerEnabled = !timerEnabled;
+            e.target.textContent = timerEnabled ? '⏱️' : '🚫';
+            e.target.title = timerEnabled ? 'Таймер включён (нажми, чтобы выключить)' : 'Таймер выключен (нажми, чтобы включить)';
+
+            const timerBox = document.getElementById('timer-box');
+            if (timerEnabled) {
+                timerBox.style.display = '';
+                if (gameStarted && matchedCount < board.length / 2) startTimer();
+            } else {
+                timerBox.style.display = 'none';
+                clearInterval(timerInterval);
+            }
+        });
+        // Звук вкл/выкл
+        document.getElementById('sound-toggle').addEventListener('click', (e) => {
+            soundEnabled = !soundEnabled;
+            e.target.textContent = soundEnabled ? '🔊 Звук: ВКЛ' : '🔇 Звук: ВЫКЛ';
+        });
+
+        // Заново (в панели)
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+
+        // Играть снова (на экране победы)
+        document.getElementById('play-again').addEventListener('click', startGame);
+
+        /* ============================================================
+   9. РЕКОРДЫ (localStorage)
+   ============================================================ */
+
+        // Ключ для хранения рекордов (один на все размеры)
+        const RECORDS_KEY = 'memory-records';
+
+        // Прочитать все рекорды из localStorage
+        function loadRecords() {
+            try {
+                const raw = localStorage.getItem(RECORDS_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        // Сохранить все рекорды в localStorage
+        function saveRecords(records) {
+            try {
+                localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+            } catch (e) { }
+        }
+
+        // Получить рекорды для конкретного размера поля
+        function getRecordsForSize(size) {
+            const all = loadRecords();
+            return all[size] || { bestMoves: null, bestTime: null };
+        }
+
+        // Обновить рекорды после победы. Возвращает true, если побит хоть один рекорд.
+        function updateRecords(size, moves, time) {
+            const all = loadRecords();
+            const current = all[size] || { bestMoves: null, bestTime: null };
+            let isNewRecord = false;
+
+            // Проверяем рекорд по ходам
+            if (current.bestMoves === null || moves < current.bestMoves) {
+                current.bestMoves = moves;
+                isNewRecord = true;
+            }
+
+            // Проверяем рекорд по времени (только если таймер был включён)
+            if (timerEnabled) {
+                if (current.bestTime === null || time < current.bestTime) {
+                    current.bestTime = time;
+                    isNewRecord = true;
+                }
+            }
+
+            all[size] = current;
+            saveRecords(all);
+            return isNewRecord;
+        }
+
+        // Показать рекорды на экране победы
+        function showRecords(size) {
+            const rec = getRecordsForSize(size);
+            document.getElementById('record-moves').textContent =
+                rec.bestMoves !== null ? rec.bestMoves : '—';
+            document.getElementById('record-time').textContent =
+                rec.bestTime !== null ? rec.bestTime + ' с' : '—';
+        }
+
+        // Показать/скрыть плашку "Новый рекорд"
+        function showNewRecordBanner(show) {
+            const el = document.getElementById('new-record');
+            if (show) {
+                el.classList.add('show');
+            } else {
+                el.classList.remove('show');
+            }
+        }
+        /* ============================================================
+           9. СТАРТ
+           ============================================================ */
+
+        startGame();
+    </script>
+</body>
+
+</html>
