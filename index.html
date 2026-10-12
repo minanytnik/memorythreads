@@ -1059,6 +1059,7 @@
             document.getElementById('win-screen').classList.remove('show');
 
             clearInterval(timerInterval);
+            lockBoard = false;
             timerInterval = null;
 
             // Размер поля
@@ -1151,6 +1152,7 @@
                     flipped = [];
 
                     if (matchedCount === board.length / 2) {
+                        clearInterval(timerInterval);   // ← останавливаем таймер СРАЗУ
                         win();
                     }
                 }, 400);
