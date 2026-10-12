@@ -1731,6 +1731,29 @@
                 loadRating(ratingSize);
             });
         });
+        /* ============================================================
+   12. ЗАКРЫТИЕ ОКОН ПО ESC И КЛИКУ ВНЕ
+   ============================================================ */
+
+        // Закрытие по Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Закрываем все открытые окна
+                document.getElementById('win-screen').classList.remove('show');
+                document.getElementById('auth-screen').classList.remove('show');
+                document.getElementById('rating-screen').classList.remove('show');
+            }
+        });
+
+        // Закрытие по клику вне окна (на тёмный фон)
+        document.querySelectorAll('.win-screen, .auth-screen, .rating-screen').forEach(screen => {
+            screen.addEventListener('click', (e) => {
+                // Закрываем, только если клик был по самому фону, а не по окну внутри
+                if (e.target === screen) {
+                    screen.classList.remove('show');
+                }
+            });
+        });
         checkAuth();
         startGame();
     </script>
