@@ -939,7 +939,7 @@
                 // Громкость — плавно нарастает и затухает
                 const gain = ctx.createGain();
                 gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.1, now + 0.03);
+                gain.gain.linearRampToValueAtTime(0.04, now + 0.03);
                 gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
                 noise.connect(filter);
