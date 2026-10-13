@@ -113,18 +113,20 @@
 
     <script src="js/sounds.js"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/records.js"></script>
 
     <script>
-        /* ============================================================
-           1. НАСТРОЙКИ
-           ============================================================ */
+
+    /* ============================================================
+    1. НАСТРОЙКИ
+    ============================================================ */
 
         // Сколько всего аватарок в папке images/ (файлы 1.jpg ... 34.jpg)
         const TOTAL_AVATARS = 34;
 
-        /* ============================================================
-   2. СОСТОЯНИЕ ИГРЫ
-   ============================================================ */
+    /* ============================================================
+    2. СОСТОЯНИЕ ИГРЫ
+    ============================================================ */
 
         let currentSize = '4x4';      // текущий размер поля
         let timerEnabled = true;      // включён ли таймер
@@ -142,9 +144,9 @@
         let bestTime = null;           // лучший результат по времени
 
 
-        /* ============================================================
-           4. СОЗДАНИЕ ИГРОВОГО ПОЛЯ
-           ============================================================ */
+    /* ============================================================
+    3. СОЗДАНИЕ ИГРОВОГО ПОЛЯ
+    ============================================================ */
 
         function shuffle(arr) {
             // Перемешивание Фишера-Йетса
@@ -235,9 +237,9 @@
             });
         }
 
-        /* ============================================================
-           5. ЛОГИКА ИГРЫ
-           ============================================================ */
+/* ============================================================
+4. ЛОГИКА ИГРЫ
+============================================================ */
 
         function onCardClick(card) {
             if (lockBoard) return;
@@ -334,7 +336,7 @@
         }
 
         /* ============================================================
-           6. ТАЙМЕР
+           5. ТАЙМЕР
            ============================================================ */
 
         function startTimer() {
@@ -346,7 +348,7 @@
         }
 
         /* ============================================================
-           7. КОНФЕТТИ
+           6. КОНФЕТТИ
            ============================================================ */
 
         const CONFETTI_COLORS = ['#ffd93d', '#ff6b6b', '#6bcbff', '#a66bff', '#6bff9e', '#ff9e6b'];
@@ -369,7 +371,7 @@
         }
 
         /* ============================================================
-           8. КНОПКИ УПРАВЛЕНИЯ
+           7. КНОПКИ УПРАВЛЕНИЯ
            ============================================================ */
 
         // Выбор размера
@@ -464,89 +466,7 @@
         document.getElementById('play-again').addEventListener('click', startGame);
 
         /* ============================================================
-   9. РЕКОРДЫ (localStorage)
-   ============================================================ */
-
-        // Ключ для хранения рекордов (один на все размеры)
-        const RECORDS_KEY = 'memory-records';
-
-        // Прочитать все рекорды из localStorage
-        function loadRecords() {
-            try {
-                const raw = localStorage.getItem(RECORDS_KEY);
-                return raw ? JSON.parse(raw) : {};
-            } catch (e) {
-                return {};
-            }
-        }
-
-        // Сохранить все рекорды в localStorage
-        function saveRecords(records) {
-            try {
-                localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
-            } catch (e) { }
-        }
-
-        // Получить рекорды для конкретного размера поля
-        function getRecordsForSize(size) {
-            const all = loadRecords();
-            return all[size] || { bestMoves: null, bestTime: null };
-        }
-
-        // Обновить рекорды после победы. Возвращает true, если побит хоть один рекорд.
-        function updateRecords(size, moves, time) {
-            const all = loadRecords();
-            const current = all[size] || { bestMoves: null, bestTime: null };
-            let isNewRecord = false;
-
-            if (current.bestMoves === null || moves < current.bestMoves) {
-                current.bestMoves = moves;
-                isNewRecord = true;
-            }
-
-            if (timerEnabled) {
-                if (current.bestTime === null || time < current.bestTime) {
-                    current.bestTime = time;
-                    isNewRecord = true;
-                }
-            }
-
-            all[size] = current;
-            saveRecords(all);
-
-            // Если игрок залогинен — сохраняем в Supabase
-            if (currentUser) {
-                saveRecordToSupabase(size, current.bestMoves, current.bestTime);
-            }
-
-            return isNewRecord;
-        }
-
-        // Показать рекорды на экране победы
-        function showRecords(size) {
-            const rec = getRecordsForSize(size);
-            document.getElementById('record-moves').textContent =
-                rec.bestMoves !== null ? rec.bestMoves : '—';
-            document.getElementById('record-time').textContent =
-                rec.bestTime !== null ? rec.bestTime + ' с' : '—';
-        }
-
-        // Показать/скрыть плашку "Новый рекорд"
-        function showNewRecordBanner(show) {
-            const el = document.getElementById('new-record');
-            if (show) {
-                el.classList.add('show');
-            } else {
-                el.classList.remove('show');
-            }
-        }
-        /* ============================================================
-           9. СТАРТ
-           ============================================================ */
-
-
-        /* ============================================================
-   11. РЕЙТИНГ
+   8. РЕЙТИНГ
    ============================================================ */
 
         let ratingSize = '4x4';   // текущий размер поля в рейтинге
@@ -626,7 +546,7 @@
             });
         });
         /* ============================================================
-   12. ЗАКРЫТИЕ ОКОН ПО ESC И КЛИКУ ВНЕ
+   9. ЗАКРЫТИЕ ОКОН ПО ESC И КЛИКУ ВНЕ
    ============================================================ */
 
         // Закрытие по Esc
