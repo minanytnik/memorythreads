@@ -1,0 +1,686 @@
+        /* ====== ОБЩИЕ НАСТРОЙКИ ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #7b2ff7 0%, #00d4c6 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* ====== ТЕМЫ ФОНА ====== */
+
+        /* ☀️ Светлая тема */
+        body.theme-light {
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            color: #2a2a5a;
+        }
+
+        /* 🌆 Потемнее — это текущая (по умолчанию) */
+        body.theme-medium {
+            background: linear-gradient(135deg, #7b2ff7 0%, #00d4c6 100%);
+            color: #fff;
+        }
+
+        /* 🌙 Тёмная тема */
+        body.theme-dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8e8f0;
+        }
+
+        /* В светлой теме — адаптируем панели и кнопки */
+        body.theme-light .controls,
+        body.theme-light .stats div,
+        body.theme-light .records {
+            background: rgba(0, 0, 0, 0.06);
+        }
+
+        body.theme-light .controls button {
+            background: rgba(0, 0, 0, 0.08);
+            color: #2a2a5a;
+        }
+
+        body.theme-light .controls button:hover {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        body.theme-light .controls button.active {
+            background: #7b2ff7;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(123, 47, 247, 0.3);
+        }
+
+        /* В тёмной теме — панели чуть светлее фона */
+        body.theme-dark .controls,
+        body.theme-dark .stats div,
+        body.theme-dark .records {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        body.theme-dark .controls button {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e8e8f0;
+        }
+
+        body.theme-dark .controls button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        body.theme-dark .controls button.active {
+            background: #00d4c6;
+            color: #fff;
+        }
+
+        .game-wrap {
+            width: 100%;
+            max-width: 600px;
+            /* ← вот эта ширина будет у панели и поля */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            white-space: nowrap;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 400px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (min-width: 500px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* ====== ПАНЕЛЬ УПРАВЛЕНИЯ ====== */
+        .controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 10px 8px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* На широких экранах (компьютер) — одна строка */
+        @media (min-width: 600px) {
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .controls-row {
+                flex-wrap: nowrap;
+            }
+        }
+
+        .controls button {
+            font-size: 0.85rem;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .controls button:not(.size-btn) {
+            min-width: 36px;
+            padding: 8px 6px;
+            font-size: 1rem;
+        }
+
+        .controls button:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls button.active {
+            background: #00d4c6;
+            color: #fff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 198, 0.5);
+        }
+
+        /* ====== СТАТИСТИКА ====== */
+        .stats {
+            width: 100%;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            box-sizing: border-box;
+        }
+
+        .stats div {
+            flex: 1;
+            /* ← растягивается на равную долю */
+            text-align: center;
+            /* ← текст по центру плашки */
+            background: rgba(255, 255, 255, 0.12);
+            padding: 8px 16px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-sizing: border-box;
+        }
+
+        /* ====== ИГРОВОЕ ПОЛЕ ====== */
+        .board {
+            width: 100%;
+            display: grid;
+            gap: 10px;
+            perspective: 1000px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        /* ====== КАРТОЧКА ====== */
+        .card {
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Анимация появления карточки "волной" */
+        .card {
+            opacity: 0;
+            transform: translateY(30px) scale(0.7);
+            animation: cardAppear 0.5s ease-out forwards;
+        }
+
+        /* На телефонах анимацию отключаем — она тормозит */
+        @media (max-width: 768px) {
+            .card {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+        }
+
+        @keyframes cardAppear {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.7);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translateY(-5px) scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Если карточка перевёрнута — анимация не мешает */
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card.matched {
+            cursor: default;
+            pointer-events: none;
+            opacity: 0.4;
+            /* ← полупрозрачность */
+            transition: opacity 0.5s;
+            /* ← плавное появление прозрачности */
+        }
+
+        .card-face {
+            position: absolute;
+            inset: 0;
+            backface-visibility: hidden;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Рубашка (логотип чата) */
+        .card-back {
+            background: #fff;
+            background-image: url('images/logo.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Лицо (аватарка) */
+        .card-front {
+            background: #fff;
+            transform: rotateY(180deg);
+        }
+
+        .card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* ====== ЭКРАН ПОБЕДЫ ====== */
+        .win-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .win-screen.show {
+            display: flex;
+            animation: fadeIn 0.4s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .win-screen h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ====== ОКНО ВХОДА ====== */
+        .auth-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .auth-screen.show {
+            display: flex;
+        }
+
+        .auth-box {
+            background: #2a2a4a;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 360px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-box h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .auth-field {
+            margin-bottom: 15px;
+        }
+
+        .auth-field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .auth-field input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .auth-field input:focus {
+            outline: none;
+            border-color: #00d4c6;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .auth-error {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            min-height: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .auth-box button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #auth-submit {
+            background: #00d4c6;
+            color: #fff;
+        }
+
+        #auth-submit:hover {
+            background: #00b4a6;
+        }
+
+        #auth-switch {
+            background: transparent;
+            color: #00d4c6;
+            font-size: 0.9rem;
+        }
+
+        #auth-switch:hover {
+            text-decoration: underline;
+        }
+
+        #auth-cancel {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 0.9rem;
+        }
+
+        #auth-cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ====== ОКНО РЕЙТИНГА ====== */
+        .rating-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .rating-screen.show {
+            display: flex;
+        }
+
+        .rating-box {
+            background: #2a2a4a;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 420px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rating-box h2 {
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .rating-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .rating-tab {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .rating-tab.active {
+            background: #00d4c6;
+            color: #fff;
+        }
+
+        .rating-list {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            min-height: 200px;
+        }
+
+        .rating-loading {
+            text-align: center;
+            opacity: 0.6;
+            padding: 30px;
+        }
+
+        .rating-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .rating-row.me {
+            background: rgba(0, 212, 198, 0.2);
+            border: 1px solid rgba(0, 212, 198, 0.4);
+        }
+
+        .rating-place {
+            font-weight: 700;
+            min-width: 32px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        .rating-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .rating-score {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            text-align: right;
+        }
+
+        .rating-score div {
+            line-height: 1.4;
+        }
+
+        #rating-close {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        #rating-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        А
+
+        /* Заглушка под гифку кота */
+        .cat-gif {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .cat-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .win-screen p {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        /* Плашка "Новый рекорд" */
+        .new-record {
+            display: none;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffd93d;
+            text-shadow: 0 2px 10px rgba(255, 217, 61, 0.6);
+            margin-bottom: 15px;
+            animation: recordPulse 1s infinite;
+        }
+
+        .new-record.show {
+            display: block;
+        }
+
+        @keyframes recordPulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.08);
+            }
+        }
+
+        /* Блок с рекордами */
+        .records {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .records>div:first-child {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .record-line span {
+            color: #ffd93d;
+            font-weight: 700;
+        }
+
+        .win-screen button {
+            font-size: 1.2rem;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 14px;
+            background: #ffd93d;
+            color: #4a3a7a;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .win-screen button:hover {
+            transform: scale(1.05);
+        }
+
+        /* ====== КОНФЕТТИ ====== */
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 200;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
