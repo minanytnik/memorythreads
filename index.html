@@ -242,6 +242,15 @@
             animation: cardAppear 0.5s ease-out forwards;
         }
 
+        /* На телефонах анимацию отключаем — она тормозит */
+        @media (max-width: 768px) {
+            .card {
+                opacity: 1;
+                transform: none;
+                animation: none;
+            }
+        }
+
         @keyframes cardAppear {
             0% {
                 opacity: 0;
@@ -1097,7 +1106,11 @@
 
                 // Задержка появления — "волна"
                 // Чем больше index, тем позже появляется
-                card.style.animationDelay = (index * 0.05) + 's';
+                // Задержка "волной" — только на компьютере, на телефонах отключаем
+                const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+                if (!isMobile) {
+                    card.style.animationDelay = (index * 0.05) + 's';
+                }
 
                 card.innerHTML = `
       <div class="card-inner" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform 0.8s;">
@@ -1160,7 +1173,7 @@
                     flipped = [];
 
                     if (matchedCount === board.length / 2) {
-                        clearInterval(timerInterval);   // ← останавливаем таймер СРАЗУ
+                        clearInterval(timerInterval);
                         win();
                     }
                 }, 400);
@@ -1174,13 +1187,25 @@
                     b.querySelector('.card-inner').style.transform = '';
                     flipped = [];
                     lockBoard = false;
-                }, 1200);
+                }, 900);
             }
+
+            // СТРАХОВКА: если через 2 секунды lockBoard всё ещё true — сбрасываем
+            setTimeout(() => {
+                if (lockBoard) {
+                    console.log('Страховка: сбрасываем lockBoard');
+                    lockBoard = false;
+                    flipped = [];
+                }
+            }, 2000);
         }
 
         function win() {
             clearInterval(timerInterval);
+            lockBoard = false;
+            flipped = [];
             playWin();
+
 
             // Выбираем случайную гифку с котом
             const randomCat = Math.floor(Math.random() * TOTAL_CAT_GIFS) + 1;
