@@ -1,6 +1,6 @@
 /* ============================================================
-9. РЕКОРДЫ (localStorage)
-============================================================ */
+   9. РЕКОРДЫ (localStorage)
+   ============================================================ */
 
 // Ключ для хранения рекордов (один на все размеры)
 const RECORDS_KEY = 'memory-records';
@@ -49,21 +49,29 @@ function updateRecords(size, moves, time) {
     all[size] = current;
     saveRecords(all);
 
-    // Показать рекорды на экране победы
-    function showRecords(size) {
-        const rec = getRecordsForSize(size);
-        document.getElementById('record-moves').textContent =
-            rec.bestMoves !== null ? rec.bestMoves : '—';
-        document.getElementById('record-time').textContent =
-            rec.bestTime !== null ? rec.bestTime + ' с' : '—';
+    // Если игрок залогинен — сохраняем в Supabase
+    if (currentUser) {
+        saveRecordToSupabase(size, current.bestMoves, current.bestTime);
     }
 
-    // Показать/скрыть плашку "Новый рекорд"
-    function showNewRecordBanner(show) {
-        const el = document.getElementById('new-record');
-        if (show) {
-            el.classList.add('show');
-        } else {
-            el.classList.remove('show');
-        }
+    return isNewRecord;
+}
+
+// Показать рекорды на экране победы
+function showRecords(size) {
+    const rec = getRecordsForSize(size);
+    document.getElementById('record-moves').textContent =
+        rec.bestMoves !== null ? rec.bestMoves : '—';
+    document.getElementById('record-time').textContent =
+        rec.bestTime !== null ? rec.bestTime + ' с' : '—';
+}
+
+// Показать/скрыть плашку "Новый рекорд"
+function showNewRecordBanner(show) {
+    const el = document.getElementById('new-record');
+    if (show) {
+        el.classList.add('show');
+    } else {
+        el.classList.remove('show');
     }
+}
