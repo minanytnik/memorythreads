@@ -223,9 +223,7 @@ async function logoutUser() {
 // Обработчики кнопок
 document.getElementById('login-btn').addEventListener('click', () => {
     if (currentUser) {
-        if (confirm('Выйти из аккаунта?')) {
-            logoutUser();
-        }
+        openProfile();
     } else {
         openAuth('login');
     }
@@ -256,3 +254,107 @@ document.getElementById('auth-switch').addEventListener('click', () => {
 });
 
 document.getElementById('auth-cancel').addEventListener('click', closeAuth);
+
+/* ============================================================
+   ПРОФИЛЬ ИГРОКА
+   ============================================================ */
+
+// Открыть окно профиля
+async function openProfile() {
+    document.getElementById('profile-screen').classList.add('show');
+
+    // Заполняем имя и дату
+    const username = currentUser.user_metadata?.username || 'Игрок';
+    document.getElementById('profile-username').textContent = username;
+
+    const createdAt = new Date(currentUser.created_at);
+    const dateStr = createdAt.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    document.getElementById('profile-date').textContent = 'С нами с ' + dateStr;
+
+    // Загружаем статистику
+    await loadProfileStats();
+}
+
+// Закрыть окно профиля
+function closeProfile() {
+    document.getElementById('profile-screen').classList.remove('show');
+}
+
+// Загрузить статистику профиля из Supabase
+async function loadProfileStats() {
+    try {
+        // Загружаем профиль (счётчик переворотов)
+        const { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('total_flips')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+
+        if (profileError) {
+            console.log('Ошибка загрузки профиля:', profileError);
+        } else if (profile) {
+            document.getElementById('profile-flips').textContent = profile.total_flips || 0;
+        }
+
+        // Загружаем рекорды
+        const { data: records, error: recordsError } = await supabaseClient
+            .from('records')
+            .select('board_size, best_moves, best_time')
+            .eq('user_id', currentUser.id);
+
+        if (recordsError) {
+            console.log('Ошибка загрузки рекордов:', recordsError);
+            return;
+        }
+
+        // Заполняем по размерам
+        ['4x4', '4x5', '6x6'].forEach(size => {
+            const rec = records?.find(r => r.board_size === size);
+            const el = document.getElementById('profile-' + size);
+            if (rec) {
+                el.textContent = `${rec.best_moves} ходов` +
+                    (rec.best_time !== null ? ` / ${rec.best_time} с` : '');
+            } else {
+                el.textContent = '—';
+            }
+        });
+
+    } catch (e) {
+        console.log('Ошибка загрузки статистики:', e);
+    }
+}
+
+// Обновить счётчик переворотов в Supabase
+async function incrementFlips() {
+    if (!currentUser) return;
+
+    try {
+        // Получаем текущее значение
+        const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('total_flips')
+            .eq('id', currentUser.id)
+            .maybeSingle();
+
+        if (profile) {
+            const newValue = (profile.total_flips || 0) + 1;
+            await supabaseClient
+                .from('profiles')
+                .update({ total_flips: newValue })
+                .eq('id', currentUser.id);
+        }
+    } catch (e) {
+        console.log('Ошибка обновления счётчика:', e);
+    }
+}
+
+// Обработчики кнопок профиля
+document.getElementById('profile-close').addEventListener('click', closeProfile);
+document.getElementById('profile-logout').addEventListener('click', () => {
+    closeProfile();
+    logoutUser();
+});

@@ -208,6 +208,7 @@
         }
 
         /* ====== КАРТОЧКА ====== */
+        /* ====== КАРТОЧКА ====== */
         .card {
             aspect-ratio: 1 / 1;
             cursor: pointer;
@@ -218,22 +219,8 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             -webkit-user-select: none;
-        }
-
-        /* Анимация появления карточки "волной" */
-        .card {
             opacity: 0;
-            transform: translateY(30px) scale(0.7);
             animation: cardAppear 0.5s ease-out forwards;
-        }
-
-        /* На телефонах анимацию отключаем — она тормозит */
-        @media (max-width: 768px) {
-            .card {
-                opacity: 1;
-                transform: none;
-                animation: none;
-            }
         }
 
         @keyframes cardAppear {
@@ -253,20 +240,35 @@
             }
         }
 
-        /* Если карточка перевёрнута — анимация не мешает */
-        .card.flipped {
+        /* На телефонах анимацию отключаем — она тормозит */
+        @media (max-width: 768px) {
+            .card {
+                opacity: 1;
+                animation: none;
+            }
+        }
+
+        /* Внутренний слой — крутится он */
+        .card-inner {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+
+        .card.flipped .card-inner {
             transform: rotateY(180deg);
         }
 
+        /* Найденная пара — полупрозрачная */
         .card.matched {
             cursor: default;
             pointer-events: none;
             opacity: 0.4;
-            /* ← полупрозрачность */
             transition: opacity 0.5s;
-            /* ← плавное появление прозрачности */
         }
 
+        /* ====== СТОРОНЫ КАРТОЧКИ ====== */
         .card-face {
             position: absolute;
             inset: 0;
@@ -279,7 +281,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
-        /* Рубашка (логотип чата) */
+        /* Рубашка */
         .card-back {
             background: #fff;
             background-size: cover;
@@ -572,7 +574,146 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        А
+        /* ====== ОКНО ПРОФИЛЯ ====== */
+        .profile-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+            backdrop-filter: blur(6px);
+        }
+
+        .profile-screen.show {
+            display: flex;
+        }
+
+        .profile-box {
+            background: #2a2a4a;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 380px;
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .profile-box h2 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .profile-avatar {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .profile-username {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-date {
+            font-size: 0.85rem;
+            opacity: 0.6;
+            margin-bottom: 20px;
+        }
+
+        .profile-stat {
+            background: linear-gradient(135deg, #7b2ff7 0%, #00d4c6 100%);
+            border-radius: 14px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .profile-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .profile-stat-label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .profile-records {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .profile-records>div:first-child {
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .profile-record-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .profile-record-row span:last-child {
+            color: #ffd93d;
+            font-weight: 700;
+        }
+
+        .profile-box button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        #profile-logout {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        #profile-logout:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        #profile-close {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        #profile-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
 
         /* Заглушка под гифку кота */
         .cat-gif {
@@ -682,4 +823,15 @@
                 transform: translateY(100vh) rotate(720deg);
                 opacity: 0;
             }
+        }
+
+        /* Экран победы — всегда тёмный, независимо от темы */
+        .win-screen {
+            background: rgba(0, 0, 0, 0.85) !important;
+            color: #fff !important;
+        }
+
+        .win-screen h2,
+        .win-screen p {
+            color: #fff !important;
         }
