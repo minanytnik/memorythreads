@@ -282,7 +282,7 @@
                         clearInterval(timerInterval);
                         win();
                     }
-                }, 600);
+                }, 800);
             } else {
                 playMiss();
                 lockBoard = true;
@@ -293,7 +293,7 @@
                     b.querySelector('.card-inner').style.transform = '';
                     flipped = [];
                     lockBoard = false;
-                }, 1200);
+                }, 1800);
             }
 
             // СТРАХОВКА: если через 2 секунды lockBoard всё ещё true — сбрасываем
