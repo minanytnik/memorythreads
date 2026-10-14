@@ -29,6 +29,7 @@
                 <button id="timer-toggle" title="Включить/выключить таймер">⏱️</button>
                 <button id="sound-toggle" title="Включить/выключить звук">🔊</button>
                 <button id="theme-toggle" title="Сменить тему">🌆</button>
+                <button id="card-back-btn" title="Сменить рубашку">🎴</button>
             </div>
             <div class="controls-row">
                 <button id="rating-btn" title="Рейтинг игроков">🏆</button>
@@ -117,16 +118,16 @@
 
     <script>
 
-    /* ============================================================
-    1. НАСТРОЙКИ
-    ============================================================ */
+        /* ============================================================
+        1. НАСТРОЙКИ
+        ============================================================ */
 
         // Сколько всего аватарок в папке images/ (файлы 1.jpg ... 34.jpg)
         const TOTAL_AVATARS = 34;
 
-    /* ============================================================
-    2. СОСТОЯНИЕ ИГРЫ
-    ============================================================ */
+        /* ============================================================
+        2. СОСТОЯНИЕ ИГРЫ
+        ============================================================ */
 
         let currentSize = '4x4';      // текущий размер поля
         let timerEnabled = true;      // включён ли таймер
@@ -144,9 +145,9 @@
         let bestTime = null;           // лучший результат по времени
 
 
-    /* ============================================================
-    3. СОЗДАНИЕ ИГРОВОГО ПОЛЯ
-    ============================================================ */
+        /* ============================================================
+        3. СОЗДАНИЕ ИГРОВОГО ПОЛЯ
+        ============================================================ */
 
         function shuffle(arr) {
             // Перемешивание Фишера-Йетса
@@ -219,13 +220,13 @@
                 }
 
                 card.innerHTML = `
-      <div class="card-inner" style="position:absolute;inset:0;transform-style:preserve-3d;transition:transform 0.8s;">
-        <div class="card-face card-back"></div>
-        <div class="card-face card-front">
-          <img src="images/${avatarNum}.jpg" alt="avatar">
-        </div>
-      </div>
-    `;
+  <div class="card-inner" style="...">
+    <div class="card-face card-back" style="background-image: url('images/${currentCardBack}')"></div>
+    <div class="card-face card-front">
+      <img src="images/${avatarNum}.jpg" alt="avatar">
+    </div>
+  </div>
+`;
 
                 card.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -237,9 +238,9 @@
             });
         }
 
-/* ============================================================
-4. ЛОГИКА ИГРЫ
-============================================================ */
+        /* ============================================================
+        4. ЛОГИКА ИГРЫ
+        ============================================================ */
 
         function onCardClick(card) {
             if (lockBoard) return;
@@ -456,6 +457,23 @@
             } catch (e) { }
         });
 
+        // Смена рубашки
+        document.getElementById('card-back-btn').addEventListener('click', () => {
+            // Находим текущий индекс
+            let currentIndex = CARD_BACKS.indexOf(currentCardBack);
+            // Берём следующий (по кругу)
+            currentIndex = (currentIndex + 1) % CARD_BACKS.length;
+            currentCardBack = CARD_BACKS[currentIndex];
+
+            // Сохраняем в localStorage
+            localStorage.setItem('memory-card-back', currentCardBack);
+
+            // Обновляем все рубашки на поле
+            document.querySelectorAll('.card-back').forEach(el => {
+                el.style.backgroundImage = `url('images/${currentCardBack}')`;
+            });
+        });
+
         // Применяем тему при загрузке
         applyTheme();
 
@@ -569,6 +587,17 @@
             });
         });
         checkAuth();
+
+        // Доступные рубашки
+        const CARD_BACKS = [
+            'card-back-1.jpg',   // пёстрая (текущая)
+            'card-back-2.png',   // светлая
+            'card-back-3.png'    // тёмная
+        ];
+
+        // Текущая рубашка (из localStorage или первая по умолчанию)
+        let currentCardBack = localStorage.getItem('memory-card-back') || CARD_BACKS[0];
+
         startGame();
     </script>
 </body>

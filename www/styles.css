@@ -282,7 +282,6 @@
         /* Рубашка (логотип чата) */
         .card-back {
             background: #fff;
-            background-image: url('images/logo.jpg');
             background-size: cover;
             background-position: center;
         }
