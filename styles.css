@@ -260,12 +260,10 @@
             transform: rotateY(180deg);
         }
 
-        /* Найденная пара — полупрозрачная */
+        /* Найденная пара */
         .card.matched {
             cursor: default;
             pointer-events: none;
-            opacity: 0.4;
-            transition: opacity 0.5s;
         }
 
         /* ====== СТОРОНЫ КАРТОЧКИ ====== */
