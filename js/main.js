@@ -19,6 +19,7 @@ let gameStarted = false;
 let currentRecords = null;
 let bestMoves = null;
 let bestTime = null;
+let gameId = 0;          // номер текущей партии (защита setTimeout'ов)
 
 /* ============================================================
 3. СОЗДАНИЕ ИГРОВОГО ПОЛЯ
@@ -39,6 +40,7 @@ function getRandomAvatars(count) {
 }
 
 function startGame() {
+    gameId++;            // новая партия — новый номер, старые таймеры обезврежены
     flipped = [];
     matchedCount = 0;
     moves = 0;
@@ -133,6 +135,7 @@ function onCardClick(card) {
 function checkMatch() {
     const [a, b] = flipped;
     const isMatch = a.dataset.avatar === b.dataset.avatar;
+    const myGameId = gameId; // запоминаем номер партии, в которой нас запланировали
 
     if (isMatch) {
         playMatch();
@@ -140,13 +143,14 @@ function checkMatch() {
         lockBoard = true;
 
         setTimeout(() => {
+            if (myGameId !== gameId) return; // партия уже сменилась — отмена
             a.classList.add('matched');
             b.classList.add('matched');
             matchedCount++;
             flipped = [];
             lockBoard = false;
 
-            if (matchedCount === board.length / 2) {
+            if (matchedCount >= board.length / 2) {
                 clearInterval(timerInterval);
                 win();
             }
@@ -156,6 +160,7 @@ function checkMatch() {
         lockBoard = true;
 
         setTimeout(() => {
+            if (myGameId !== gameId) return; // партия уже сменилась — отмена
             a.classList.remove('flipped');
             b.classList.remove('flipped');
             a.querySelector('.card-inner').style.transform = '';
@@ -172,7 +177,7 @@ function win() {
     flipped = [];
     playWin();
 
-    const randomCat = Math.floor(Math.random() * TOTAL_CAT_GIFS) + 1;
+    const randomCat = Math.floor(Math.random() * CONFIG.TOTAL_CAT_GIFS) + 1;
     document.getElementById('win-gif').src = `images/cat${randomCat}.gif`;
 
     const isNewRecord = updateRecords(currentSize, moves, seconds);
@@ -245,7 +250,7 @@ if ('serviceWorker' in navigator) {
 // Таймер вкл/выкл
 document.getElementById('timer-toggle').addEventListener('click', (e) => {
     timerEnabled = !timerEnabled;
-    e.target.textContent = '️';
+    e.target.textContent = '⏱️';
     e.target.style.textDecoration = timerEnabled ? 'none' : 'line-through';
     e.target.style.opacity = timerEnabled ? '1' : '0.5';
     e.target.title = timerEnabled ? 'Таймер включён (нажми, чтобы выключить)' : 'Таймер выключен (нажми, чтобы включить)';
@@ -263,7 +268,7 @@ document.getElementById('timer-toggle').addEventListener('click', (e) => {
 // Звук вкл/выкл
 document.getElementById('sound-toggle').addEventListener('click', (e) => {
     soundEnabled = !soundEnabled;
-    e.target.textContent = '';
+    e.target.textContent = '🔊';
     e.target.style.textDecoration = soundEnabled ? 'none' : 'line-through';
     e.target.style.opacity = soundEnabled ? '1' : '0.5';
     e.target.title = soundEnabled ? 'Звук включён (нажми, чтобы выключить)' : 'Звук выключен (нажми, чтобы включить)';

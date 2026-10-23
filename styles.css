@@ -833,3 +833,26 @@
         .win-screen p {
             color: #fff !important;
         }
+
+        .cat-gif img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            font-size: 1.2rem;
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Экран победы прокручивается на маленьких экранах */
+        .win-screen {
+            overflow-y: auto;
+            padding-bottom: 40px;
+        }
+
+        /* На телефонах гифка поменьше, чтобы всё влезло */
+        @media (max-width: 500px) {
+            .cat-gif {
+                width: 200px;
+                height: 200px;
+            }
+        }

@@ -195,3 +195,16 @@ function playWin() {
     const randomIndex = Math.floor(Math.random() * WIN_SOUNDS.length);
     WIN_SOUNDS[randomIndex]();
 }
+
+/* Разблокировка звука на iOS: AudioContext стартует "спящим"
+   и просыпает только после жеста пользователя */
+function unlockAudio() {
+    try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') {
+            ctx.resume();
+        }
+    } catch (e) { }
+}
+document.addEventListener('click', unlockAudio, { once: true });
+document.addEventListener('touchend', unlockAudio, { once: true });
