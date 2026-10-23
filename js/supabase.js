@@ -3,16 +3,6 @@ const SUPABASE_URL = 'https://yquwdsmpewtiwrqzavok.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlxdXdkc21wZXd0aXdycXphdm9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NDM3ODgsImV4cCI6MjEwNzMxOTc4OH0.Ds5kI3ix-ey4aUUbqSm23or25Fg4OGqHgG9yJrJQ6gw';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Сколько гифок с котами в папке images/ (файлы cat1.gif, cat2.gif...)
-const TOTAL_CAT_GIFS = 27;
-
-// Размеры поля: сколько карточек по горизонтали и вертикали
-const SIZES = {
-    '4x4': { cols: 4, rows: 4 },
-    '4x5': { cols: 4, rows: 5 },
-    '6x6': { cols: 6, rows: 6 }
-};
-
 // Сохранить рекорд в Supabase
 async function saveRecordToSupabase(size, moves, time) {
     try {

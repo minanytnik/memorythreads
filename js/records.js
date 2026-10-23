@@ -3,7 +3,7 @@
    ============================================================ */
 
 // Ключ для хранения рекордов (один на все размеры)
-const RECORDS_KEY = 'memory-records';
+const RECORDS_KEY = CONFIG.STORAGE_KEYS.RECORDS;
 
 // Прочитать все рекорды из localStorage
 function loadRecords() {
