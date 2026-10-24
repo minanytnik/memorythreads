@@ -208,7 +208,8 @@ function startTimer() {
 6. КОНФЕТТИ
 ============================================================ */
 function launchConfetti() {
-    const count = 30;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const count = isMobile ? 10 : CONFIG.CONFETTI_COUNT;
     for (let i = 0; i < count; i++) {
         const piece = document.createElement('div');
         piece.className = 'confetti-piece';
@@ -246,6 +247,15 @@ if ('serviceWorker' in navigator) {
             .catch((err) => console.log('Service Worker не зарегистрирован:', err));
     });
 }
+
+// Автоперезагрузка страницы, когда Service Worker обновился:
+// игрок не должен играть в устаревший код
+const hadController = !!navigator.serviceWorker.controller;
+navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController) {
+        window.location.reload();
+    }
+});
 
 // Таймер вкл/выкл
 document.getElementById('timer-toggle').addEventListener('click', (e) => {

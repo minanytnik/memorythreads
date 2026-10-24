@@ -856,3 +856,17 @@
                 height: 200px;
             }
         }
+
+        /* На телефонах убираем размытие фона: iOS тратит на него много сил */
+        @media (max-width: 768px) {
+
+            .controls,
+            .stats div,
+            .win-screen,
+            .auth-screen,
+            .rating-screen,
+            .profile-screen {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+            }
+        }
