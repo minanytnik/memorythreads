@@ -5,7 +5,7 @@
 
 const CONFIG = {
     // Количество аватарок в папке images/ (файлы 1.jpg ... 34.jpg)
-    TOTAL_AVATARS: 34,
+    TOTAL_AVATARS: 56,
 
     // Количество гифок с котами (cat1.gif ... cat27.gif)
     TOTAL_CAT_GIFS: 27,

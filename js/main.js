@@ -86,7 +86,7 @@ function startGame() {
             <div class="card-inner" style="transform-style: preserve-3d; transition: transform 0.8s;">
                 <div class="card-face card-back" style="background-image: url('images/${currentCardBack}')"></div>
                 <div class="card-face card-front">
-                    <img src="images/${avatarNum}.jpg" alt="avatar">
+                    <img src="images/card${String(avatarNum).padStart(2, '0')}.jpg" alt="avatar">
                 </div>
             </div>
         `;
