@@ -608,16 +608,16 @@
         }
 
         .profile-avatar {
-            font-size: 4rem;
-            margin-bottom: 10px;
-            width: 90px;
-            height: 90px;
+            width: 110px;
+            height: 110px;
             margin: 0 auto 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
+            font-size: 4.5rem;
+            line-height: 1;
         }
 
         .profile-username {
@@ -869,4 +869,76 @@
                 backdrop-filter: none;
                 -webkit-backdrop-filter: none;
             }
+        }
+
+        /* ====== ВЫБОР ЭМОДЗИ В ПРОФИЛЕ ====== */
+        .profile-emoji-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .profile-emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+
+        .emoji-option {
+            font-size: 1.4rem;
+            padding: 6px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .emoji-option:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .emoji-option.selected {
+            background: rgba(0, 212, 198, 0.35);
+            box-shadow: 0 0 0 2px #00d4c6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .emoji-toggle {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .emoji-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .emoji-save {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: none;
+            border-radius: 10px;
+            background: #00d4c6;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .emoji-save:hover {
+            background: #00b4a6;
         }

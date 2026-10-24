@@ -252,6 +252,7 @@ document.getElementById('auth-cancel').addEventListener('click', closeAuth);
 // Открыть окно профиля
 async function openProfile() {
     document.getElementById('profile-screen').classList.add('show');
+    renderEmojiPicker();
 
     // Заполняем имя и дату
     const username = currentUser.user_metadata?.username || 'Игрок';
@@ -277,10 +278,9 @@ function closeProfile() {
 // Загрузить статистику профиля из Supabase
 async function loadProfileStats() {
     try {
-        // Загружаем профиль (счётчик переворотов)
         const { data: profile, error: profileError } = await supabaseClient
             .from('profiles')
-            .select('total_flips')
+            .select('total_flips, avatar_emoji')
             .eq('id', currentUser.id)
             .maybeSingle();
 
@@ -288,9 +288,12 @@ async function loadProfileStats() {
             console.log('Ошибка загрузки профиля:', profileError);
         } else if (profile) {
             document.getElementById('profile-flips').textContent = profile.total_flips || 0;
+            const emoji = profile.avatar_emoji || '👤';
+            document.getElementById('profile-avatar').textContent = emoji;
+            highlightEmoji(emoji);
+            pickedEmoji = emoji;
         }
 
-        // Загружаем рекорды
         const { data: records, error: recordsError } = await supabaseClient
             .from('records')
             .select('board_size, best_moves, best_time')
@@ -301,7 +304,6 @@ async function loadProfileStats() {
             return;
         }
 
-        // Заполняем по размерам
         ['4x4', '4x5', '6x6'].forEach(size => {
             const rec = records?.find(r => r.board_size === size);
             const el = document.getElementById('profile-' + size);
@@ -348,3 +350,68 @@ document.getElementById('profile-logout').addEventListener('click', () => {
     closeProfile();
     logoutUser();
 });
+
+/* ============================================================
+ВЫБОР ЭМОДЗИ-АВАТАРКИ (выпадающий список + сохранение)
+============================================================ */
+
+let pickedEmoji = null; // выбрано в списке, но ещё не сохранено
+
+// Нарисовать сетку кнопок-эмодзи
+function renderEmojiPicker() {
+    const picker = document.getElementById('emoji-picker');
+    picker.innerHTML = '';
+    CONFIG.EMOJI_AVATARS.filter((emoji) => emoji.length > 0).forEach((emoji) => {
+        const btn = document.createElement('button');
+        btn.className = 'emoji-option';
+        btn.textContent = emoji;
+        btn.addEventListener('click', () => {
+            pickedEmoji = emoji;
+            document.getElementById('profile-avatar').textContent = emoji; // превью сразу
+            highlightEmoji(emoji);
+        });
+        picker.appendChild(btn);
+    });
+}
+
+// Подсветить выбранный эмодзи
+function highlightEmoji(emoji) {
+    document.querySelectorAll('.emoji-option').forEach((btn) => {
+        btn.classList.toggle('selected', btn.textContent === emoji);
+    });
+}
+
+// Показать / скрыть выпадающий список
+function toggleEmojiPicker() {
+    const picker = document.getElementById('emoji-picker');
+    const saveBtn = document.getElementById('emoji-save');
+    const toggleBtn = document.getElementById('emoji-toggle');
+    const isHidden = picker.classList.toggle('hidden');
+    saveBtn.classList.toggle('hidden', isHidden);
+    toggleBtn.textContent = isHidden ? 'Выбрать эмодзи ▼' : 'Скрыть список ▲';
+}
+
+// Сохранить выбранный эмодзи в базу
+async function saveEmoji() {
+    if (!currentUser || !pickedEmoji) return;
+    try {
+        const { error } = await supabaseClient
+            .from('profiles')
+            .update({ avatar_emoji: pickedEmoji })
+            .eq('id', currentUser.id);
+        if (error) {
+            console.log('Ошибка сохранения эмодзи:', error);
+            return;
+        }
+        // Успех: сворачиваем список
+        document.getElementById('emoji-picker').classList.add('hidden');
+        document.getElementById('emoji-save').classList.add('hidden');
+        document.getElementById('emoji-toggle').textContent = 'Выбрать эмодзи ▼';
+    } catch (e) {
+        console.log('Ошибка:', e);
+    }
+}
+
+// Кнопки списка
+document.getElementById('emoji-toggle').addEventListener('click', toggleEmojiPicker);
+document.getElementById('emoji-save').addEventListener('click', saveEmoji);
