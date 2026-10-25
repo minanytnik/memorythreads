@@ -377,7 +377,7 @@ async function loadRating(size) {
     try {
         const { data, error } = await supabaseClient
             .from('records')
-            .select('username, best_moves, best_time')
+            .select('user_id, username, best_moves, best_time')
             .eq('board_size', size)
             .order('best_moves', { ascending: true })
             .limit(20);
@@ -393,16 +393,27 @@ async function loadRating(size) {
             return;
         }
 
+        const userIds = data.map((r) => r.user_id).filter(Boolean);
+        const emojiByUser = {};
+        if (userIds.length > 0) {
+            const { data: profs } = await supabaseClient
+                .from('profiles')
+                .select('id, avatar_emoji')
+                .in('id', userIds);
+            (profs || []).forEach((p) => { emojiByUser[p.id] = p.avatar_emoji || '👤'; });
+        }
+
         const myUsername = currentUser?.user_metadata?.username;
 
         list.innerHTML = data.map((row, index) => {
             const isMe = row.username === myUsername;
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : (index + 1);
+            const emoji = emojiByUser[row.user_id] || '👤';
 
             return `
-                <div class="rating-row ${isMe ? 'me' : ''}">
+                <div class="rating-row ${isMe ? 'me' : ''} clickable" data-user-id="${row.user_id}">
                     <div class="rating-place">${medal}</div>
-                    <div class="rating-name">${row.username}</div>
+                    <div class="rating-name">${emoji} ${row.username}</div>
                     <div class="rating-score">
                         <div>Ходы: ${row.best_moves}</div>
                         ${row.best_time !== null ? `<div>Время: ${row.best_time} с</div>` : ''}

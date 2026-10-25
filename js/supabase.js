@@ -415,3 +415,73 @@ async function saveEmoji() {
 // Кнопки списка
 document.getElementById('emoji-toggle').addEventListener('click', toggleEmojiPicker);
 document.getElementById('emoji-save').addEventListener('click', saveEmoji);
+
+/* ============================================================
+ПРОФИЛИ ДРУГИХ ИГРОКОВ (клик по рейтингу)
+============================================================ */
+
+function setProfileMode(isOwn) {
+    const own = isOwn ? '' : 'none';
+    document.getElementById('emoji-toggle').style.display = own;
+    document.getElementById('profile-logout').style.display = own;
+}
+
+async function openPlayerProfile(userId) {
+    if (currentUser && currentUser.id === userId) {
+        openProfile();
+        return;
+    }
+    closeRating();
+
+    document.getElementById('profile-screen').classList.add('show');
+    setProfileMode(false);
+    document.getElementById('profile-avatar').textContent = '👤';
+    document.getElementById('profile-username').textContent = '...';
+    document.getElementById('profile-date').textContent = '';
+    document.getElementById('profile-flips').textContent = '0';
+    ['4x4', '4x5', '6x6'].forEach((s) => {
+        document.getElementById('profile-' + s).textContent = '—';
+    });
+
+    try {
+        const { data: profile, error } = await supabaseClient
+            .from('profiles')
+            .select('username, created_at, total_flips, avatar_emoji')
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (error || !profile) {
+            document.getElementById('profile-username').textContent = 'Игрок не найден';
+            return;
+        }
+
+        document.getElementById('profile-avatar').textContent = profile.avatar_emoji || '👤';
+        document.getElementById('profile-username').textContent = profile.username || 'Игрок';
+        const dateStr = new Date(profile.created_at).toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'long', year: 'numeric'
+        });
+        document.getElementById('profile-date').textContent = 'С нами с ' + dateStr;
+        document.getElementById('profile-flips').textContent = profile.total_flips || 0;
+
+        const { data: records } = await supabaseClient
+            .from('records')
+            .select('board_size, best_moves, best_time')
+            .eq('user_id', userId);
+
+        ['4x4', '4x5', '6x6'].forEach((s) => {
+            const rec = (records || []).find((r) => r.board_size === s);
+            const el = document.getElementById('profile-' + s);
+            el.textContent = rec
+                ? `${rec.best_moves} ходов` + (rec.best_time !== null ? ` / ${rec.best_time} с` : '')
+                : '—';
+        });
+    } catch (e) {
+        console.log('Ошибка открытия чужого профиля:', e);
+    }
+}
+
+document.getElementById('rating-list').addEventListener('click', (e) => {
+    const row = e.target.closest('.rating-row');
+    if (!row || !row.dataset.userId) return;
+    openPlayerProfile(row.dataset.userId);
+});
