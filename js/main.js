@@ -9,6 +9,11 @@ window.addEventListener('error', (e) => {
     document.body.appendChild(box);
 });
 
+// Скрываем тестовые элементы, если в адресе нет ?test=1
+if (new URLSearchParams(window.location.search).get('test') !== '1') {
+    document.querySelectorAll('.test-only').forEach((el) => el.remove());
+}
+
 /* ============================================================
 1. НАСТРОЙКИ
 ============================================================ */
