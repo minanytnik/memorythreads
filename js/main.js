@@ -201,6 +201,22 @@ function win() {
 
     const isNewRecord = updateRecords(currentSize, moves, seconds);
 
+    // Пишем партию в историю (для аналитики и достижений).
+    // Не ждём ответа (fire-and-forget), чтобы не задерживать экран победы
+    if (currentUser) {
+        supabaseClient
+            .from('games')
+            .insert({
+                user_id: currentUser.id,
+                board_size: currentSize,
+                moves: moves,
+                seconds: seconds
+            })
+            .then(({ error }) => {
+                if (error) console.log('Ошибка записи партии:', error);
+            });
+    }
+
     document.getElementById('final-moves').textContent = moves;
     document.getElementById('final-time').textContent = seconds;
 
