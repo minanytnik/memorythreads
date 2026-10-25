@@ -27,6 +27,8 @@
 - Утилиты: Python + Pillow (обработка аватарок)
 
 ## 📁 Структура проекта
+
+```
 ├── index.html            каркас страницы
 ├── styles.css            стили, темы, адаптивность
 ├── sw.js                 Service Worker: офлайн и автообновления
@@ -42,6 +44,7 @@
 ├── update_avatars.py     скрипт обработки фото в аватарки
 ├── sync_www.py           скрипт обновления www перед сборкой APK
 └── www/                  сборочная папка Capacitor (руками не трогать!)
+```
 
 ## 🚀 Запуск у себя
 1. `git clone https://github.com/minanytnik/memorythreads.git`
