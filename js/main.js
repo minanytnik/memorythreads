@@ -257,16 +257,16 @@ if ('serviceWorker' in navigator) {
             .then(() => console.log('Service Worker зарегистрирован'))
             .catch((err) => console.log('Service Worker не зарегистрирован:', err));
     });
-}
 
-// Автоперезагрузка страницы, когда Service Worker обновился:
-// игрок не должен играть в устаревший код
-const hadController = !!navigator.serviceWorker.controller;
-navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (hadController) {
-        window.location.reload();
-    }
-});
+    // Автоперезагрузка страницы, когда Service Worker обновился:
+    // игрок не должен играть в устаревший код
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (hadController) {
+            window.location.reload();
+        }
+    });
+}
 
 // Таймер вкл/выкл
 document.getElementById('timer-toggle').addEventListener('click', (e) => {
