@@ -143,14 +143,22 @@ function onCardClick(card) {
     }
 }
 
+// Телефон ли это? Браузер носит "паспорт" устройства (userAgent),
+// а мы проверяем, есть ли в нём слова-маркеры мобильных
+function isMobile() {
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function checkMatch() {
     const [a, b] = flipped;
     const isMatch = a.dataset.avatar === b.dataset.avatar;
-    const myGameId = gameId; // запоминаем номер партии, в которой нас запланировали
+    const myGameId = gameId;
 
     if (isMatch) {
         playMatch();
-        launchConfetti();
+        if (!isMobile()) {
+            launchConfetti();
+        }
         lockBoard = true;
 
         setTimeout(() => {
