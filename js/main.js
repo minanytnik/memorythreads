@@ -1,3 +1,14 @@
+/* Чёрный ящик: если что-то упадёт, покажем ошибку прямо на экране.
+   Тестировщица пришлёт скриншот — и мы увидим точный диагноз без гаданий */
+window.addEventListener('error', (e) => {
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;' +
+        'background:#8b0000;color:#fff;padding:10px;border-radius:10px;' +
+        'font-size:12px;font-family:monospace;';
+    box.textContent = 'Ошибка: ' + e.message;
+    document.body.appendChild(box);
+});
+
 /* ============================================================
 1. НАСТРОЙКИ
 ============================================================ */
