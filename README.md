@@ -51,7 +51,8 @@
 2. Открой папку в VS Code и запусти Live Server
    (или просто `python -m http.server 5500` в папке проекта)
 3. Чтобы работали вход и рекорды — создай свой проект Supabase
-   и пропиши ключи в `js/supabase.js` (таблицы: profiles, records)
+   и пропиши ключи в `js/supabase.js`.
+   Таблицы и политики безопасности: [`db/schema.sql`](db/schema.sql).
 
 ## 🐍 Скрипты
 **Добавить аватарки:** сложи фото в `avatars-source/` → `python update_avatars.py`
