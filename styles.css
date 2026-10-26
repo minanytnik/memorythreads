@@ -961,3 +961,43 @@
         .rating-row.clickable:hover {
             background: rgba(255, 255, 255, 0.14);
         }
+
+        /* Сетка статистики в профиле: три квадратика в ряд */
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .profile-stat-box {
+            background: linear-gradient(135deg, #00d4c6 0%, #00a896 100%);
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-stat-box .profile-stat-label {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .profile-stat-box .profile-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* На мобильных: 2+1 или вертикально, если очень узко */
+        @media (max-width: 480px) {
+            .profile-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .profile-stat-box:last-child {
+                grid-column: span 2;
+            }
+        }

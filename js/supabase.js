@@ -318,6 +318,8 @@ async function loadProfileStats() {
     } catch (e) {
         console.log('Ошибка загрузки статистики:', e);
     }
+    // Загружаем расширенную статистику из таблицы games
+    loadGamesStats();
 }
 
 // Обновить счётчик переворотов в Supabase
@@ -485,3 +487,50 @@ document.getElementById('rating-list').addEventListener('click', (e) => {
     if (!row || !row.dataset.userId) return;
     openPlayerProfile(row.dataset.userId);
 });
+
+/* ============================================================
+СТАТИСТИКА ИЗ ТАБЛИЦЫ GAMES (для богатого профиля)
+============================================================ */
+
+async function loadGamesStats() {
+    if (!currentUser) return;
+
+    try {
+        const { data: games, error } = await supabaseClient
+            .from('games')
+            .select('board_size, moves, seconds')
+            .eq('user_id', currentUser.id);
+
+        if (error) {
+            console.log('Ошибка загрузки статистики игр:', error);
+            return;
+        }
+
+        if (!games || games.length === 0) {
+            document.getElementById('profile-games-count').textContent = '0';
+            document.getElementById('profile-avg-time').textContent = '—';
+            document.getElementById('profile-fav-size').textContent = '—';
+            return;
+        }
+
+        // Считаем статистику
+        const totalGames = games.length;
+        const totalTime = games.reduce((sum, g) => sum + (g.seconds || 0), 0);
+        const avgTime = Math.round(totalTime / totalGames);
+
+        // Находим любимый размер (тот, где больше всего партий)
+        const sizeCounts = {};
+        games.forEach(g => {
+            sizeCounts[g.board_size] = (sizeCounts[g.board_size] || 0) + 1;
+        });
+        const favSize = Object.entries(sizeCounts).sort((a, b) => b[1] - a[1])[0][0];
+
+        // Обновляем UI
+        document.getElementById('profile-games-count').textContent = totalGames;
+        document.getElementById('profile-avg-time').textContent = `${avgTime} с`;
+        document.getElementById('profile-fav-size').textContent = favSize;
+
+    } catch (e) {
+        console.log('Ошибка загрузки статистики игр:', e);
+    }
+}
