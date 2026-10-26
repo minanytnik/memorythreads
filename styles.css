@@ -1001,3 +1001,128 @@
                 grid-column: span 2;
             }
         }
+
+        /* Достижения в профиле */
+        .profile-achievements {
+            margin: 20px 0;
+        }
+
+        .profile-achievements h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+        }
+
+        .achievement-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            font-size: 24px;
+            position: relative;
+            transition: transform 0.2s;
+        }
+
+        .achievement-item:hover {
+            transform: scale(1.05);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+
+        .achievement-item .achievement-name {
+            font-size: 10px;
+            margin-top: 5px;
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Анимация для уведомлений о достижениях */
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        /* Сворачиваемый блок рекордов */
+        .profile-records {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .profile-records summary {
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            list-style: none;
+            /* убираем стандартный треугольник */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .profile-records summary::-webkit-details-marker {
+            display: none;
+            /* для Safari */
+        }
+
+        .profile-records summary::after {
+            content: '▼';
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .profile-records[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .profile-records .record-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-records .record-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Убираем старые margin, чтобы gap работал чисто */
+        .profile-body>* {
+            margin: 0 !important;
+        }

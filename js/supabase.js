@@ -270,6 +270,21 @@ async function openProfile() {
     await loadProfileStats();
 }
 
+// Закрываем профиль по клику вне его области
+function closeProfileOnClickOutside() {
+    const profileScreen = document.getElementById('profile-screen');
+    const profileCard = profileScreen.querySelector('.profile-card'); // или другой класс карточки профиля
+    
+    profileScreen.addEventListener('click', (e) => {
+        if (e.target === profileScreen) {
+            closeProfile(); // или profile-screen.classList.remove('show')
+        }
+    });
+}
+
+// Вызови эту функцию один раз при загрузке
+closeProfileOnClickOutside();
+
 // Закрыть окно профиля
 function closeProfile() {
     document.getElementById('profile-screen').classList.remove('show');
@@ -320,6 +335,9 @@ async function loadProfileStats() {
     }
     // Загружаем расширенную статистику из таблицы games
     loadGamesStats();
+
+    // Загружаем достижения
+    loadAchievements();
 }
 
 // Обновить счётчик переворотов в Supabase

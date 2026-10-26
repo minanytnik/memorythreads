@@ -125,51 +125,63 @@
             <div class="profile-username" id="profile-username">Игрок</div>
             <div class="profile-date" id="profile-date">С нами с ...</div>
 
-            <div class="profile-stat">
-                <div class="profile-stat-icon">🔄</div>
-                <div class="profile-stat-value" id="profile-flips">0</div>
-                <div class="profile-stat-label">перевёрнутых карточек</div>
-            </div>
+            <div class="profile-body">
+                <div class="profile-stat">
+                    <div class="profile-stat-icon">🔄</div>
+                    <div class="profile-stat-value" id="profile-flips">0</div>
+                    <div class="profile-stat-label">перевёрнутых карточек</div>
+                </div>
 
-            <div class="profile-records">
-                <div>🏆 Лучшие результаты:</div>
-                <div class="profile-record-row">
-                    <span>4×4:</span>
-                    <span id="profile-4x4">—</span>
+                <!-- 1. Зелёные карточки со статистикой (наверх) -->
+                <div class="profile-stats-grid">
+                    <div class="profile-stat-box">
+                        <div class="profile-stat-label">Сыграно партий</div>
+                        <div class="profile-stat-value" id="profile-games-count">0</div>
+                    </div>
+                    <div class="profile-stat-box">
+                        <div class="profile-stat-label">Среднее время</div>
+                        <div class="profile-stat-value" id="profile-avg-time">—</div>
+                    </div>
+                    <div class="profile-stat-box">
+                        <div class="profile-stat-label">Любимый размер</div>
+                        <div class="profile-stat-value" id="profile-fav-size">—</div>
+                    </div>
                 </div>
-                <div class="profile-record-row">
-                    <span>4×5:</span>
-                    <span id="profile-4x5">—</span>
-                </div>
-                <div class="profile-record-row">
-                    <span>6×6:</span>
-                    <span id="profile-6x6">—</span>
-                </div>
-            </div>
 
-            <div class="profile-stats-grid">
-                <div class="profile-stat-box">
-                    <div class="profile-stat-label">Сыграно партий</div>
-                    <div class="profile-stat-value" id="profile-games-count">0</div>
-                </div>
-                <div class="profile-stat-box">
-                    <div class="profile-stat-label">Среднее время</div>
-                    <div class="profile-stat-value" id="profile-avg-time">—</div>
-                </div>
-                <div class="profile-stat-box">
-                    <div class="profile-stat-label">Любимый размер</div>
-                    <div class="profile-stat-value" id="profile-fav-size">—</div>
-                </div>
-            </div>
+                <!-- 2. Сворачиваемый блок рекордов (вниз) -->
+                <details class="profile-records">
+                    <summary>🏆 Лучшие результаты</summary>
+                    <div class="record-row">
+                        <span>4×4:</span>
+                        <span id="profile-4x4">—</span>
+                    </div>
+                    <div class="record-row">
+                        <span>4×5:</span>
+                        <span id="profile-4x5">—</span>
+                    </div>
+                    <div class="record-row">
+                        <span>6×6:</span>
+                        <span id="profile-6x6">—</span>
+                    </div>
+                </details>
 
-            <button id="profile-logout">🚪 Выйти</button>
-            <button id="profile-close">Закрыть</button>
+                <!-- 3. Достижения (остаются внизу) -->
+                <div class="profile-achievements">
+                    <h3>🥇 Достижения</h3>
+                    <div id="achievements-list" class="achievements-grid">
+                        <!-- Заполняется из JS -->
+                    </div>
+                </div>
+
+                <button id="profile-logout">🚪 Выйти</button>
+            </div>
         </div>
     </div>
 
     <script src="js/config.js"></script>
     <script src="js/sounds.js"></script>
     <script src="js/supabase.js"></script>
+    <script src="js/achievements.js"></script>
     <script src="js/records.js"></script>
     <script src="js/main.js"></script>
 

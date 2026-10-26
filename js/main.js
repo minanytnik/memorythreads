@@ -207,8 +207,11 @@ function win() {
     const isNewRecord = updateRecords(currentSize, moves, seconds);
 
     // Пишем партию в историю (для аналитики и достижений).
-    // Не ждём ответа (fire-and-forget), чтобы не задерживать экран победы
+    console.log('🎮 win(): currentUser =', currentUser);
+    console.log(' win(): currentSize =', currentSize, 'moves =', moves, 'seconds =', seconds);
+
     if (currentUser) {
+        console.log('📝 Записываем партию в games...');
         supabaseClient
             .from('games')
             .insert({
@@ -217,14 +220,30 @@ function win() {
                 moves: moves,
                 seconds: seconds
             })
-            .then(({ error }) => {
-                if (error) console.log('Ошибка записи партии:', error);
+            .then(async ({ data, error }) => {
+                console.log('📝 Результат записи:', { data, error });
+                if (error) {
+                    console.log('❌ Ошибка записи партии:', error);
+                } else {
+                    console.log('✅ Партия записана! Проверяем достижения...');
+                    // Проверяем достижения после успешной записи партии
+                    const stats = await getAchievementStats();
+                    console.log('📊 Статистика для достижений:', stats);
+                    if (stats) {
+                        await checkAndUnlockAchievements(stats);
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(' Ошибка в .catch():', err);
             });
+    } else {
+        console.log('⚠️ currentUser = null, запись пропускаем');
     }
 
+    // Показываем экран победы
     document.getElementById('final-moves').textContent = moves;
     document.getElementById('final-time').textContent = seconds;
-
     showRecords(currentSize);
     showNewRecordBanner(isNewRecord);
 
